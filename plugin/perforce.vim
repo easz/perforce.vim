@@ -3,13 +3,13 @@
 " Version: 0.5
 "
 " ---------------------------------------------------------------------------
-" perforce.vim - An interface to the perforce command line.  This script 
+" perforce.vim - An interface to the perforce command line.  This script
 " provides a shortcut to the most frequently used operations such as edit,
 " sync, and revert. There is no attempt to make this lits comprehensive. If you
 " want to carry out all your p4 tasks from within vim, see Hari Krishna Dara's
 " perforce integration.
 "
-" Perforce is a source control system, also known as 'the Fast Software 
+" Perforce is a source control system, also known as 'the Fast Software
 " Configuration Management System'.  See http://www.perforce.com
 " ---------------------------------------------------------------------------
 
@@ -18,6 +18,16 @@ if exists("loaded_perforce")
    finish
 endif
 let loaded_perforce=1
+
+"Basic check for p4-enablement
+if executable( "p4" ) || executable( "p4.exe" )
+    let s:PerforceExecutable="p4"
+else
+    echohl WarningMsg
+    echomsg 'perforce.vim: Cannot find p4 command'
+    echohl None
+    finish
+endif
 
 " define the mappings that provide the user interface to this plug-in
 augroup perforce
@@ -102,12 +112,6 @@ if( strlen( &rulerformat ) == 0 ) && ( p4SetRuler == 1 )
   set rulerformat=%60(%=%{P4RulerStatus()}\ %4l,%-3c\ %3p%%%)
 endif
 
-"Basic check for p4-enablement
-if executable( "p4.exe" )
-    let s:PerforceExecutable="p4" 
-else
-    augroup! perforce
-endif 
 
 "----------------------------------------------------------------------------
 " Minimal execution of a p4 command, followed by re-opening
@@ -166,7 +170,7 @@ function s:P4RevertFile()
 		         return
 		     else
 		         e!
-		 		 call s:P4RestoreLastPosition()   
+		 		 call s:P4RestoreLastPosition()
 		     endif
 		 endif
       " No, abandon changes
@@ -344,7 +348,7 @@ function s:P4OpenFileForEdit()
         return
     else
         e!
-        call s:P4RestoreLastPosition()   
+        call s:P4RestoreLastPosition()
     endif
 endfunction
 
@@ -374,7 +378,7 @@ function s:P4OpenFileForDeletion()
             return
         else
             e!
-            call s:P4RestoreLastPosition()   
+            call s:P4RestoreLastPosition()
         endif
     else
         echomsg "File is writable.  p4 Edit was not executed."
@@ -385,12 +389,12 @@ endfunction
 " Produce string for ruler output
 "----------------------------------------------------------------------------
 function P4RulerStatus()
-    if !exists( "b:headrev" ) 
+    if !exists( "b:headrev" )
         call s:P4InitialBufferVariables()
     endif
     if b:action == ""
         if b:headrev == ""
-            return "[Not in p4]" 
+            return "[Not in p4]"
         elseif b:otheropen == ""
             return "[p4 unopened]"
         else
@@ -431,7 +435,7 @@ function s:P4GetFileStatus()
 
     if b:headrev == ""
         return "Not in p4"
-    else 
+    else
         return filestatus
     endif
 endfunction
@@ -463,7 +467,7 @@ endfunction
 "----------------------------------------------------------------------------
 function s:P4GetHaveRev()
     if b:haverev != ""
-		 let haverev = b:haverev 
+		 let haverev = b:haverev
     else
 		 let filestatus = s:P4GetFileStatus()
         let haverev = matchstr( filestatus, "haveRev [0-9]*" )
@@ -495,14 +499,14 @@ function s:P4Action()
 endfunction
 
 "----------------------------------------------------------------------------
-" Function to be called when loading vim as the p4 editor 
+" Function to be called when loading vim as the p4 editor
 " ( on "p4 submit", "p4 client" and some others )
 "----------------------------------------------------------------------------
 function s:P4LaunchFromP4()
-    " search for description text, starting from the end of the file and 
+    " search for description text, starting from the end of the file and
     " wrapping
     "
-    let submitdescription = "<enter description here>" 
+    let submitdescription = "<enter description here>"
     let clientdescription = "^View:"
     normal G$
     let ret = search( submitdescription, "w" )
@@ -521,7 +525,7 @@ function s:P4LaunchFromP4()
 endfunction
 
 "----------------------------------------------------------------------------
-" Restore last position when re-opening a file 
+" Restore last position when re-opening a file
 " after edit or revert or sync
 "----------------------------------------------------------------------------
 function s:P4RestoreLastPosition()
@@ -697,7 +701,7 @@ function s:P4SubmitChangelist()
             return
          else
              e!
-             call s:P4RestoreLastPosition()   
+             call s:P4RestoreLastPosition()
         endif
     endif
 endfunction
