@@ -1,3 +1,7 @@
+" Perforce Integratino for Vim
+"
+" Base on https://www.vim.org/scripts/script.php?script_id=167 by
+"
 " Authors: Tom Slee (tslee@ianywhere.com); Suresh Srinivasan; Terrance Cohen
 " Last Modified: Mon May 28 2007
 " Version: 0.5
@@ -38,57 +42,39 @@ augroup perforce
   autocmd BufRead * call <SID>P4GetFileStatus()
 
   " Keyboard shortcuts
-  map <silent> <Leader><Leader> :echo <SID>P4GetInfo()<CR>
-  map <silent> <Leader>a :echo <SID>P4AnnotateFile()<CR>
-  map <silent> <Leader>e :call <SID>P4OpenFileForEdit()<CR>
-  map <silent> <Leader>r :call <SID>P4RevertFile()<CR>
-  map <silent> <Leader>i :echo <SID>P4GetFileStatus()<CR>
-  map <silent> <Leader>s :echo <SID>P4GetFileStatus()<CR> " For backward compatibility
-  map <silent> <Leader>y :echo <SID>P4SyncFile()<CR>
-  map <silent> <Leader>d :echo <SID>P4DiffFile()<CR>
-  map <silent> <Leader>u :echo <SID>P4UDiffFile()<CR>
-  map <silent> <Leader>z :echo <SID>P4VDiffFile()<CR>
-  map <silent> <Leader>v :echo <SID>P4VersionsFile()<CR>
-  map <silent> <Leader>p :echo <SID>P4PrintFile()<CR>
-  map <silent> <Leader>h :echo <SID>P4Help()<CR>
-  map <silent> <Leader>l :call <SID>P4Login()<CR>
-  map <silent> <Leader>x :call <SID>P4OpenFileForDeletion()<CR>
-  map <silent> <Leader>C :call <SID>P4CreateChangelist()<CR>
-  map <silent> <Leader>D :echo <SID>P4DiffFiles()<CR>
-  map <silent> <Leader>U :echo <SID>P4UDiffFiles()<CR>
-  map <silent> <Leader>L :echo <SID>P4GetChangelists(1)<CR>
-  map <silent> <Leader>I :echo <SID>P4GetChangelistInfo()<CR>
-  map <silent> <Leader>F :echo <SID>P4GetFiles()<CR>
-  map <silent> <Leader>X :call <SID>P4DeleteChangelist()<CR>
-  map <silent> <Leader>S :call <SID>P4SubmitChangelist()<CR>
+  "map <silent> <Leader>p :echo <SID>P4PrintFile()<CR>
 
   " user-defined commands must start with a capital letter and should not include digits
-  command -nargs=1 Perforce :call <SID>P4ShellCommandAndEditCurrentBuffer( <f-args> )
+  command -nargs=1 Perforce       :call <SID>P4ShellCommandAndEditCurrentBuffer( <f-args> )
   command -nargs=0 PerforceLaunch :call <SID>P4LaunchFromP4()
 
   " menus
-  menu <silent> &Perforce.&Login :call <SID>P4Login()<CR>
-  menu <silent> &Perforce.Info :echo <SID>P4GetInfo()<CR>
+  menu <silent> &Perforce.&Login                    :call <SID>P4Login()<CR>
+  menu <silent> &Perforce.Info                      :echo <SID>P4GetInfo()<CR>
+
   menu <silent> Perforce.-Sep1- :
-  menu <silent> &Perforce.Show\ file\ &annotated :echo <SID>P4AnnotateFile()<CR>
-  menu <silent> &Perforce.List\ file\ &versions :echo <SID>P4VersionsFile()<CR>
-  menu <silent> &Perforce.&Diff :echo <SID>P4DiffFile()<CR>
-  menu <silent> &Perforce.&Unified diff :echo <SID>P4UDiffFile()<CR>
-  menu <silent> &Perforce.&Edit :call <SID>P4OpenFileForEdit()<CR>
-  menu <silent> &Perforce.Mark\ file\ for\ deletion :call <SID>P4OpenFileForDeletion()<CR>
-  menu <silent> &Perforce.&Revert :call <SID>P4RevertFile()<CR>
-  menu <silent> &Perforce.S&ync :echo <SID>P4SyncFile()<CR>
-  menu <silent> &Perforce.&Status :echo <SID>P4GetFileStatus()<CR>
+
+  menu <silent> &Perforce.List\ &File\ Names        :echo <SID>P4GetFiles()<CR>
+  menu <silent> &Perforce.Show\ File\ &Annotated    :echo <SID>P4AnnotateFile()<CR>
+  menu <silent> &Perforce.List\ File\ &Versions     :echo <SID>P4VersionsFile()<CR>
+  menu <silent> &Perforce.&Diff                     :echo <SID>P4DiffFile()<CR>
+  menu <silent> &Perforce.Diff\ All\ Files          :echo <SID>P4DiffFiles()<CR>
+  menu <silent> &Perforce.Diff\ File\ Versions      :echo <SID>P4VDiffFile()<CR>
+  menu <silent> &Perforce.&Unified                  diff :echo <SID>P4UDiffFile()<CR>
+  menu <silent> &Perforce.Unified                   diff\ all\ files :echo <SID>P4UDiffFiles()<CR>
+  menu <silent> &Perforce.&Edit                     :call <SID>P4OpenFileForEdit()<CR>
+  menu <silent> &Perforce.Mark\ File\ For\ Deletion :call <SID>P4OpenFileForDeletion()<CR>
+  menu <silent> &Perforce.&Revert                   :call <SID>P4RevertFile()<CR>
+  menu <silent> &Perforce.S&ync                     :echo <SID>P4SyncFile()<CR>
+  menu <silent> &Perforce.&Status                   :echo <SID>P4GetFileStatus()<CR>
+
   menu <silent> Perforce.-Sep2- :
-  menu <silent> &Perforce.Submit\ changelist :call <SID>P4SubmitChangelist()<CR>
-  menu <silent> Perforce.-Sep3- :
-  menu <silent> &Perforce.&Create\ changelist :call <SID>P4CreateChangelist()<CR>
-  menu <silent> &Perforce.Diff\ all\ files :echo <SID>P4DiffFiles()<CR>
-  menu <silent> &Perforce.Unified diff\ all\ files :echo <SID>P4UDiffFiles()<CR>
-  menu <silent> &Perforce.Delete\ changelist :call <SID>P4DeleteChangelist()<CR>
-  menu <silent> &Perforce.List\ change&lists :echo <SID>P4GetChangelists(1)<CR>
-  menu <silent> &Perforce.Get\ changelist\ info :echo <SID>P4GetChangelistInfo()<CR>
-  menu <silent> &Perforce.List\ &file\ names :echo <SID>P4GetFiles()<CR>
+
+  menu <silent> &Perforce.Submit\ Changelist        :call <SID>P4SubmitChangelist()<CR>
+  menu <silent> &Perforce.&Create\ Changelist       :call <SID>P4CreateChangelist()<CR>
+  menu <silent> &Perforce.Delete\ Changelist        :call <SID>P4DeleteChangelist()<CR>
+  menu <silent> &Perforce.List\ Change&lists        :echo <SID>P4GetChangelists(1)<CR>
+  menu <silent> &Perforce.Get\ Changelist\ Info     :echo <SID>P4GetChangelistInfo()<CR>
 
 augroup END
 
@@ -724,36 +710,3 @@ function s:P4Login()
   :exec cmd
 endfunction
 
-"----------------------------------------------------------------------------
-" Display help
-"----------------------------------------------------------------------------
-function s:P4Help()
-  return "Format: <Leader>letter, where letter is one of:\n" .
-  \ "\n" .
-  \ "h - Display this help message\n" .
-  \ "l - Login\n" .
-  \ "<Leader> - Perforce info\n" .
-  \ "\nCurrent File commands:\n" .
-  \ "e - Edit/add file to a changelist\n" .
-  \ "x - Mark file to changelist for deletion\n" .
-  \ "r - Revert file\n" .
-  \ "i - Get file info\n" .
-  \ "s - Get file info\n" .
-  \ "v - Show versions\n" .
-  \ "d - Diff file\n" .
-  \ "u - Unified diff file\n" .
-  \ "z - Diff specific versions of file\n" .
-  \ "p - Print depot file\n" .
-  \ "a - Print file annotated\n" .
-  \ "y - Sync file\n" .
-  \ "\nChangelist commands:\n" .
-  \ "C - Create a changelist\n" .
-  \ "D - Diff all files in a changelist\n" .
-  \ "U - Unified diff all files in a changelist\n" .
-  \ "X - Delete a changelist\n" .
-  \ "I - Print info about (current) changelist\n" .
-  \ "L - List changelists\n" .
-  \ "F - List files in (current) changelist\n" .
-  \ "S - Submit (current) changelist\n" .
-  \ ""
-endfunction
