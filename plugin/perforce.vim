@@ -41,34 +41,32 @@ augroup perforce
   autocmd BufRead * call <SID>P4InitialBufferVariables()
   autocmd BufRead * call <SID>P4GetFileStatus()
 
-  " Keyboard shortcuts
-  "map <silent> <Leader>p :echo <SID>P4PrintFile()<CR>
-
   " user-defined commands must start with a capital letter and should not include digits
   command -nargs=1 Perforce       :call <SID>P4ShellCommandAndEditCurrentBuffer( <f-args> )
   command -nargs=0 PerforceLaunch :call <SID>P4LaunchFromP4()
 
   " menus
   menu <silent> &Perforce.&Login                    :call <SID>P4Login()<CR>
-  menu <silent> &Perforce.Info                      :echo <SID>P4GetInfo()<CR>
+  menu <silent> &Perforce.Info                      :call <SID>P4GetInfo()<CR>
 
-  menu <silent> Perforce.-Sep1- :
+  menu <silent> Perforce.-Sep1-                     :
 
+  menu <silent> &Perforce.Print\ File               :echo <SID>P4PrintFile()<CR>
   menu <silent> &Perforce.List\ &File\ Names        :echo <SID>P4GetFiles()<CR>
   menu <silent> &Perforce.Show\ File\ &Annotated    :echo <SID>P4AnnotateFile()<CR>
   menu <silent> &Perforce.List\ File\ &Versions     :echo <SID>P4VersionsFile()<CR>
   menu <silent> &Perforce.&Diff                     :echo <SID>P4DiffFile()<CR>
   menu <silent> &Perforce.Diff\ All\ Files          :echo <SID>P4DiffFiles()<CR>
   menu <silent> &Perforce.Diff\ File\ Versions      :echo <SID>P4VDiffFile()<CR>
-  menu <silent> &Perforce.&Unified                  diff :echo <SID>P4UDiffFile()<CR>
-  menu <silent> &Perforce.Unified                   diff\ all\ files :echo <SID>P4UDiffFiles()<CR>
+  menu <silent> &Perforce.&Unified\ Diff            :echo <SID>P4UDiffFile()<CR>
+  menu <silent> &Perforce.Unified\ Diff\ All        :echo <SID>P4UDiffFiles()<CR>
   menu <silent> &Perforce.&Edit                     :call <SID>P4OpenFileForEdit()<CR>
   menu <silent> &Perforce.Mark\ File\ For\ Deletion :call <SID>P4OpenFileForDeletion()<CR>
   menu <silent> &Perforce.&Revert                   :call <SID>P4RevertFile()<CR>
   menu <silent> &Perforce.S&ync                     :echo <SID>P4SyncFile()<CR>
   menu <silent> &Perforce.&Status                   :echo <SID>P4GetFileStatus()<CR>
 
-  menu <silent> Perforce.-Sep2- :
+  menu <silent> Perforce.-Sep2-                     :
 
   menu <silent> &Perforce.Submit\ Changelist        :call <SID>P4SubmitChangelist()<CR>
   menu <silent> &Perforce.&Create\ Changelist       :call <SID>P4CreateChangelist()<CR>
@@ -121,20 +119,15 @@ endfunction
 "----------------------------------------------------------------------------
 " A wrapper around a p4 command line
 "----------------------------------------------------------------------------
-function s:P4ShellCommand( sCmd )
+function s:P4ShellCommand( sCmd, ... )
   let sReturn = ""
   let sCommandLine = s:PerforceExecutable . " " . a:sCmd
   let v:errmsg = ""
-  let sReturn = system( sCommandLine )
-  if v:errmsg == ""
-    if match( sReturn, "Perforce password (P4PASSWD) invalid or unset\." ) != -1
-      let v:errmsg = "Not logged in to Perforce."
-    elseif v:shell_error != 0
-      let v:errmsg = sReturn
-    else
-      return sReturn
-    endif
+  let sReturn = system( sCommandLine, a:000 )
+  if v:shell_error != 0 && v:errmsg == ""
+    let v:errmsg = sReturn
   endif
+  return sReturn
 endfunction
 
 "----------------------------------------------------------------------------
@@ -697,16 +690,17 @@ endfunction
 " Get general perforce info
 "----------------------------------------------------------------------------
 function s:P4GetInfo()
-  let foo = s:P4ShellCommand("info")
-  return foo
+  let info = s:P4ShellCommand("info")
+  echo info
+  return info
 endfunction
 
 "----------------------------------------------------------------------------
 " Log in to perforce
 "----------------------------------------------------------------------------
 function s:P4Login()
-  " s:P4ShellCommand( "login" )
+  "call s:P4ShellCommand( "login" )
   let cmd = "!" . s:PerforceExecutable . " login"
-  :exec cmd
+  exec cmd
 endfunction
 
