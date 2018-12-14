@@ -42,15 +42,14 @@ augroup perforce
   autocmd BufRead * call <SID>P4GetFileStatus()
 
   " user-defined commands must start with a capital letter and should not include digits
-  command -nargs=1 Perforce       :call <SID>P4ShellCommandAndEditCurrentBuffer( <f-args> )
-  command -nargs=0 PerforceLaunch :call <SID>P4LaunchFromP4()
+  " TODO: add more useful commands
+  "command -nargs=1 Perforce       :echo <SID>P4ShellCommandAndEditCurrentBuffer( <f-args> )
+  "command -nargs=0 PerforceLaunch :call <SID>P4LaunchFromP4()
 
   " menus
   menu <silent> &Perforce.&Login                    :call <SID>P4Login()<CR>
   menu <silent> &Perforce.Info                      :call <SID>P4GetInfo()<CR>
-
   menu <silent> Perforce.-Sep1-                     :
-
   menu <silent> &Perforce.Print\ File               :echo <SID>P4PrintFile()<CR>
   menu <silent> &Perforce.List\ &File\ Names        :echo <SID>P4GetFiles()<CR>
   menu <silent> &Perforce.Show\ File\ &Annotated    :echo <SID>P4AnnotateFile()<CR>
@@ -65,9 +64,7 @@ augroup perforce
   menu <silent> &Perforce.&Revert                   :call <SID>P4RevertFile()<CR>
   menu <silent> &Perforce.S&ync                     :echo <SID>P4SyncFile()<CR>
   menu <silent> &Perforce.&Status                   :echo <SID>P4GetFileStatus()<CR>
-
   menu <silent> Perforce.-Sep2-                     :
-
   menu <silent> &Perforce.Submit\ Changelist        :call <SID>P4SubmitChangelist()<CR>
   menu <silent> &Perforce.&Create\ Changelist       :call <SID>P4CreateChangelist()<CR>
   menu <silent> &Perforce.Delete\ Changelist        :call <SID>P4DeleteChangelist()<CR>
@@ -89,13 +86,14 @@ function s:P4InitialBufferVariables()
   let b:changelist=""
 endfunction
 
-if !exists( "p4ruler" )
-  let p4SetRuler = 1
-endif
+" TODO: find a better way to show on ruler or statusline
+"if !exists( "p4ruler" )
+"  let p4SetRuler = 1
+"endif
 
-if( strlen( &rulerformat ) == 0 ) && ( p4SetRuler == 1 )
-  set rulerformat=%60(%=%{P4RulerStatus()}\ %4l,%-3c\ %3p%%%)
-endif
+"if( strlen( &rulerformat ) == 0 ) && ( p4SetRuler == 1 )
+"  set rulerformat=%60(%=%{P4RulerStatus()}\ %4l,%-3c\ %3p%%%)
+"endif
 
 
 "----------------------------------------------------------------------------
@@ -104,26 +102,27 @@ endif
 " mainly for use by Perforce command.
 "----------------------------------------------------------------------------
 function s:P4ShellCommandAndEditCurrentBuffer( sCmd )
-  call s:P4ShellCommandCurrentBuffer( a:sCmd )
+  let sReturn = s:P4ShellCommandCurrentBuffer( a:sCmd )
   e!
+  return sReturn
 endfunction
 
 "----------------------------------------------------------------------------
 " A wrapper around a p4 command line for the current buffer
 "----------------------------------------------------------------------------
 function s:P4ShellCommandCurrentBuffer( sCmd )
-  let filename = expand( "%:p" )
+  let filename = shellescape( expand( "%:p" ) )
   return s:P4ShellCommand( a:sCmd . " " . filename )
 endfunction
 
 "----------------------------------------------------------------------------
 " A wrapper around a p4 command line
 "----------------------------------------------------------------------------
-function s:P4ShellCommand( sCmd, ... )
+function s:P4ShellCommand( sCmd )
   let sReturn = ""
   let sCommandLine = s:PerforceExecutable . " " . a:sCmd
   let v:errmsg = ""
-  let sReturn = system( sCommandLine, a:000 )
+  let sReturn = system( sCommandLine )
   if v:shell_error != 0 && v:errmsg == ""
     let v:errmsg = sReturn
   endif
@@ -131,12 +130,20 @@ function s:P4ShellCommand( sCmd, ... )
 endfunction
 
 "----------------------------------------------------------------------------
-" Return the p4 command line string
+" A wrapper around a p4 command line
+" with string argument which will be piped into p4 command
 "----------------------------------------------------------------------------
-function s:P4GetShellCommand( sCmd )
-  return s:PerforceExecutable . " " . a:sCmd
+function s:P4ShellCommandStdin( sCmd, stdin )
+  let sReturn = ""
+  let sCommandLine = s:PerforceExecutable . " " . a:sCmd
+  let v:errmsg = ""
+  let sReturn = system( sCommandLine, a:stdin )
+  if v:shell_error != 0 && v:errmsg == ""
+    let v:errmsg = sReturn
+  endif
+  return sReturn
 endfunction
-
+"
 "----------------------------------------------------------------------------
 " Revert a file, with more checking than just wrapping the command
 "----------------------------------------------------------------------------
@@ -586,8 +593,7 @@ function s:P4CreateChangelist()
   let desc = inputdialog( "New changelist description: ")
   echo "\n"
   if desc != ""
-    let cmd = s:P4GetShellCommand( "change -i" )
-    let result = system ( cmd, "Description: " . desc . "\nChange: new")
+    let result = s:P4ShellCommandStdin( "change -i ", "Description: " . desc . "\nChange: new")
     echo result
   endif
 endfunction
