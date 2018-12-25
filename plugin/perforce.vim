@@ -48,7 +48,7 @@ augroup perforce
 
   " menus
   menu <silent> &Perforce.&Login                    :call <SID>P4Login()<CR>
-  menu <silent> &Perforce.Info                      :call <SID>P4GetInfo()<CR>
+  menu <silent> &Perforce.Info                      :echo <SID>P4GetInfo()<CR>
   menu <silent> Perforce.-Sep1-                     :
   menu <silent> &Perforce.Print\ File               :echo <SID>P4PrintFile()<CR>
   menu <silent> &Perforce.List\ &File\ Names        :echo <SID>P4GetFiles()<CR>
@@ -697,7 +697,6 @@ endfunction
 "----------------------------------------------------------------------------
 function s:P4GetInfo()
   let info = s:P4ShellCommand("info")
-  echo info
   return info
 endfunction
 
